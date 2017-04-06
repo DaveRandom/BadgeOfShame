@@ -7,8 +7,12 @@ use Amp\Artax\Request as HttpRequest;
 use Amp\Artax\Response as HttpResponse;
 use ExceptionalJSON\DecodeErrorException;
 
-function return_empty_svg()
+function return_empty_svg(string $error = null)
 {
+    if ($error !== null) {
+        \trigger_error($error);
+    }
+
     \header('Content-Type: image/svg+xml; charset=utf-8');
     exit('<svg xmlns="http://www.w3.org/2000/svg" width="1" height="1"></svg>');
 }
@@ -65,17 +69,17 @@ $request = (new HttpRequest)
 $response = \Amp\wait($httpClient->request($request));
 
 if ($response->getStatus() !== 200) {
-    return_empty_svg();
+    return_empty_svg('Travis API request #1 returned ' . $response->getStatus());
 }
 
 try {
     $decoded = \ExceptionalJSON\decode((string)$response->getBody(), true);
 } catch (DecodeErrorException $e) {
-    return_empty_svg();
+    return_empty_svg('Travis API request #1 returned invalid JSON');
 }
 
 if (!isset($decoded['last_build_state']) || $decoded['last_build_state'] === 'success') {
-    return_empty_svg();
+    return_empty_svg('Travis API request #1 says the build it OK (' . $decoded['last_build_state'] . ')');
 }
 
 $url = \sprintf('https://api.travis-ci.org/repos/%s/builds', $repoSlug);
@@ -89,17 +93,17 @@ $request = (new HttpRequest)
 $response = \Amp\wait($httpClient->request($request));
 
 if ($response->getStatus() !== 200) {
-    return_empty_svg();
+    return_empty_svg('Travis API request #2 returned ' . $response->getStatus());
 }
 
 try {
     $decoded = \ExceptionalJSON\decode((string)$response->getBody(), true);
 } catch (DecodeErrorException $e) {
-    return_empty_svg();
+    return_empty_svg('Travis API request #2 returned invalid JSON');
 }
 
 if (!isset($decoded['builds'], $decoded['commits'])) {
-    return_empty_svg();
+    return_empty_svg('Travis API response #2 missing data');
 }
 
 $commitId = $commitSha = null;
@@ -113,7 +117,7 @@ foreach ($decoded['builds'] as $build) {
 }
 
 if ($commitId === null) {
-    return_empty_svg();
+    return_empty_svg('No commit ID');
 }
 
 foreach ($decoded['commits'] as $commit) {
@@ -124,7 +128,7 @@ foreach ($decoded['commits'] as $commit) {
 }
 
 if ($commitSha === null) {
-    return_empty_svg();
+    return_empty_svg('No commit SHA');
 }
 
 $url = \sprintf('https://api.github.com/repos/%s/commits/%s', $repoSlug, $commitSha);
@@ -138,17 +142,17 @@ $request = (new HttpRequest)
 $response = \Amp\wait($httpClient->request($request));
 
 if ($response->getStatus() !== 200) {
-    return_empty_svg();
+    return_empty_svg('Github API request returned ' . $response->getStatus());
 }
 
 try {
     $decoded = \ExceptionalJSON\decode((string)$response->getBody(), true);
 } catch (DecodeErrorException $e) {
-    return_empty_svg();
+    return_empty_svg('Github API request returned invalid JSON');
 }
 
 if (!isset($decoded['author'], $decoded['html_url'])) {
-    return_empty_svg();
+    return_empty_svg('Github API response missing data');
 }
 
 return_badge_svg($decoded['author'], $decoded['html_url']);
