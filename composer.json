@@ -1,0 +1,21 @@
+{
+  "name": "daverandom/badge-of-shame",
+  "description": "It was your fault",
+  "minimum-stability": "dev",
+  "license": "mit",
+  "authors": [
+    {
+      "name": "Chris Wright",
+      "email": "cw@daverandom.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": { "DaveRandom\\BadgeOfShame\\": "src/" }
+  },
+  "require": {
+    "amphp/amp": "^1.2",
+    "amphp/artax": "^2",
+    "daverandom/exceptional-json": "~1.0",
+    "room11/dom-utils": "~1.0"
+  }
+}
