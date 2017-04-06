@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b0e10529ff231f14faae3dd7cf971606",
-    "content-hash": "94e5eb0fa53fccf950c3f54847135c71",
+    "hash": "f8288d188679cbd60493b729230e63e4",
+    "content-hash": "29d0625fe99f779c64167fabc73e37e9",
     "packages": [
         {
             "name": "amphp/amp",
@@ -503,41 +503,6 @@
                 "dns"
             ],
             "time": "2016-04-29 20:47:45"
-        },
-        {
-            "name": "room11/dom-utils",
-            "version": "v1.1.1",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/Room-11/DOMUtils.git",
-                "reference": "724529187818c52e895914abc4969de11118093c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/Room-11/DOMUtils/zipball/724529187818c52e895914abc4969de11118093c",
-                "reference": "724529187818c52e895914abc4969de11118093c",
-                "shasum": ""
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Room11\\DOMUtils\\": "src/"
-                },
-                "files": [
-                    "src/functions.php"
-                ]
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Chris Wright"
-                }
-            ],
-            "description": "Utility functions for the PHP DOM extension",
-            "time": "2016-10-19 15:15:02"
         }
     ],
     "packages-dev": [],

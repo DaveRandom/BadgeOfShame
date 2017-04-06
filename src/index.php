@@ -48,6 +48,8 @@ if (!\preg_match('#^/([^/]+/[^/]+)$#', $_SERVER['REQUEST_URI'], $match)) {
     exit;
 }
 
+require __DIR__ . '/../vendor/autoload.php';
+
 $repoSlug = $match[1];
 
 $url = \sprintf('https://api.travis-ci.org/repos/%s', $repoSlug);

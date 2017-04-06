@@ -15,7 +15,6 @@
   "require": {
     "amphp/amp": "^1.2",
     "amphp/artax": "^2",
-    "daverandom/exceptional-json": "~1.0",
-    "room11/dom-utils": "~1.0"
+    "daverandom/exceptional-json": "~1.0"
   }
 }
