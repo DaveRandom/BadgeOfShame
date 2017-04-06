@@ -78,8 +78,8 @@ try {
     return_empty_svg('Travis API request #1 returned invalid JSON');
 }
 
-if (!isset($decoded['last_build_state']) || $decoded['last_build_state'] === 'success') {
-    return_empty_svg('Travis API request #1 says the build it OK (' . $decoded['last_build_state'] . ')');
+if (!isset($decoded['repo']['last_build_state']) || $decoded['repo']['last_build_state'] === 'success') {
+    return_empty_svg('Travis API request #1 says the build it OK (' . $decoded['repo']['last_build_state'] . ')');
 }
 
 $url = \sprintf('https://api.travis-ci.org/repos/%s/builds', $repoSlug);
