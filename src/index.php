@@ -58,6 +58,7 @@ if (!\preg_match('#^/([^/]+/[^/]+)$#', $_SERVER['REQUEST_URI'], $match)) {
 require __DIR__ . '/../vendor/autoload.php';
 
 $repoSlug = $match[1];
+$apcKey = 'BADGE:' . $repoSlug;
 
 $url = \sprintf('https://api.travis-ci.org/repos/%s', $repoSlug);
 
@@ -81,8 +82,26 @@ try {
     return_empty_svg('Travis API request #1 returned invalid JSON');
 }
 
-if (!isset($decoded['repo']['last_build_state']) || $decoded['repo']['last_build_state'] === 'success') {
-    return_empty_svg('Travis API request #1 says the build it OK (' . $decoded['repo']['last_build_state'] . ')');
+if (!isset($decoded['repo']['last_build_state'], $decoded['repo']['last_build_id'])) {
+    return_empty_svg('Travis API response #2 missing data');
+}
+
+if (\apcu_exists($apcKey)) {
+    $data = \apcu_fetch($apcKey);
+
+    if ($data['last_build_id'] === $decoded['repo']['last_build_id']) {
+        $data['last_build_success']
+            ? return_empty_svg()
+            : return_badge_svg($data['last_login'], $data['last_url']);
+    }
+}
+
+if ($decoded['repo']['last_build_state'] === 'success') {
+    \apcu_store($apcKey, [
+        'last_build_id' => $decoded['repo']['last_build_id'],
+        'last_build_success' => true,
+    ]);
+    return_empty_svg();
 }
 
 $url = \sprintf('https://api.travis-ci.org/repos/%s/builds', $repoSlug);
@@ -159,5 +178,12 @@ try {
 if (!isset($decoded['author'], $decoded['html_url'])) {
     return_empty_svg('Github API response missing data');
 }
+
+\apcu_store($apcKey, [
+    'last_build_id' => $decoded['repo']['last_build_id'],
+    'last_build_success' => false,
+    'last_login' => $decoded['author']['login'],
+    'last_url' => $decoded['html_url'],
+]);
 
 return_badge_svg($decoded['author']['login'], $decoded['html_url']);
