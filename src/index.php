@@ -22,26 +22,29 @@ function return_badge_svg($name, $commitUrl)
     $name = \htmlspecialchars($name, ENT_COMPAT | ENT_XML1, 'UTF-8');
     $commitUrl = \htmlspecialchars($commitUrl, ENT_COMPAT | ENT_XML1, 'UTF-8');
 
+    $nameWidth = \strlen($name) * 10;
+    $nameBoxWidth = $nameWidth + 10;
+    $faultBoxWidth = 43;
+    $totalWidth = $nameBoxWidth + $faultBoxWidth;
+
     \header('Content-Type: image/svg+xml; charset=utf-8');
-    exit('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="82" height="20">
+    exit('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="' . $totalWidth . '" height="20">
     <linearGradient id="b" x2="0" y2="100%">
         <stop offset="0" stop-color="#bbb" stop-opacity=".1" />
         <stop offset="1" stop-opacity=".1" />
     </linearGradient>
     <clipPath id="a">
-        <rect width="82" height="20" rx="3" fill="#fff" />
+        <rect width="' . $totalWidth . '" height="20" rx="3" fill="#fff" />
     </clipPath>
     <g clip-path="url(#a)">
-        <path fill="#555" d="M0 0h39v20H0z" />
-        <path fill="#e05d44" d="M39 0h43v20H39z" />
-        <path fill="url(#b)" d="M0 0h82v20H0z" />
+        <path fill="#555" d="M0 0h' . $nameBoxWidth . 'v20H0z" />
+        <path fill="#e05d44" d="M' . $nameBoxWidth . ' 0h' . $faultBoxWidth . 'v20H' . $nameBoxWidth . 'z" />
+        <path fill="url(#b)" d="M0 0h' . $totalWidth . 'v20H0z" />
     </g>
     <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
         <a xlink:href="' . $commitUrl . '">
-            <text x="19.5" y="15" fill="#010101" fill-opacity=".3">' . $name . '\'s</text>
-            <text x="19.5" y="14">' . $name . '\'s</text>
-            <text x="59.5" y="15" fill="#010101" fill-opacity=".3">FAULT</text>
-            <text x="59.5" y="14">FAULT</text>
+            <text x="' . ($nameBoxWidth / 2) . '" y="14" fill="#eee">' . $name . '\'s</text>
+            <text x="' . (($faultBoxWidth / 2) + $nameBoxWidth) . '" y="14" fill="#eee">FAULT</text>
         </a>
     </g>
 </svg>');
@@ -109,11 +112,13 @@ if (!isset($decoded['builds'], $decoded['commits'])) {
 $commitId = $commitSha = null;
 
 foreach ($decoded['builds'] as $build) {
-    if ($build['status'] === 'passed') {
+    if ($build['state'] === 'passed') {
         break;
     }
 
-    $commitId = $build['commit_id'];
+    if ($build['event_type'] === 'push') {
+        $commitId = $build['commit_id'];
+    }
 }
 
 if ($commitId === null) {
@@ -142,7 +147,7 @@ $request = (new HttpRequest)
 $response = \Amp\wait($httpClient->request($request));
 
 if ($response->getStatus() !== 200) {
-    return_empty_svg('Github API request returned ' . $response->getStatus());
+    return_empty_svg('Github API request returned ' . $response->getStatus() . ' for ' . $url);
 }
 
 try {
@@ -155,4 +160,4 @@ if (!isset($decoded['author'], $decoded['html_url'])) {
     return_empty_svg('Github API response missing data');
 }
 
-return_badge_svg($decoded['author'], $decoded['html_url']);
+return_badge_svg($decoded['author']['login'], $decoded['html_url']);
