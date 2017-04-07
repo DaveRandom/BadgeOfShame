@@ -86,10 +86,12 @@ if (!isset($decoded['repo']['last_build_state'], $decoded['repo']['last_build_id
     return_empty_svg('Travis API response #2 missing data');
 }
 
+$lastBuildId = $decoded['repo']['last_build_id'];
+
 if (\apcu_exists($apcKey)) {
     $data = \apcu_fetch($apcKey);
 
-    if ($data['last_build_id'] === $decoded['repo']['last_build_id']) {
+    if ($data['last_build_id'] === $lastBuildId) {
         $data['last_build_success']
             ? return_empty_svg()
             : return_badge_svg($data['last_login'], $data['last_url']);
@@ -180,7 +182,7 @@ if (!isset($decoded['author'], $decoded['html_url'])) {
 }
 
 \apcu_store($apcKey, [
-    'last_build_id' => $decoded['repo']['last_build_id'],
+    'last_build_id' => $lastBuildId,
     'last_build_success' => false,
     'last_login' => $decoded['author']['login'],
     'last_url' => $decoded['html_url'],
