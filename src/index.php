@@ -19,10 +19,11 @@ function return_empty_svg(string $error = null)
 
 function return_badge_svg($name, $commitUrl)
 {
+    $nameWidth = \strlen($name) * 10;
+
     $name = \htmlspecialchars($name, ENT_COMPAT | ENT_XML1, 'UTF-8');
     $commitUrl = \htmlspecialchars($commitUrl, ENT_COMPAT | ENT_XML1, 'UTF-8');
 
-    $nameWidth = \strlen($name) * 10;
     $nameBoxWidth = $nameWidth + 10;
     $faultBoxWidth = 43;
     $totalWidth = $nameBoxWidth + $faultBoxWidth;
@@ -98,9 +99,9 @@ if (\apcu_exists($apcKey)) {
     }
 }
 
-if ($decoded['repo']['last_build_state'] === 'success') {
+if ($decoded['repo']['last_build_state'] === 'passed') {
     \apcu_store($apcKey, [
-        'last_build_id' => $decoded['repo']['last_build_id'],
+        'last_build_id' => $lastBuildId,
         'last_build_success' => true,
     ]);
     return_empty_svg();
